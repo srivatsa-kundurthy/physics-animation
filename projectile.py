@@ -1,10 +1,11 @@
 import turtle
 import numpy as np
 import math
+import stats
 
 
 class Projectile(object):
-    def __init__(self, v0x, v0y, x0=-200, y0=-200, g=9.8, step=.1):
+    def __init__(self, v0x, v0y, x0=-200, y0=-200, g=9.8, step=.1, zoom = 100):
         """
                 :key Full projectile motion in SI
                 :param v0x: initial horizontal velocity
@@ -15,6 +16,8 @@ class Projectile(object):
                 :param step: graph time step (default .1s)
                 :return: void
                 """
+        self.stats = stats.Stats() #card generation, file management
+
         self.x_vals = []
         self.y_vals = []
         self.x = x0
@@ -22,36 +25,54 @@ class Projectile(object):
         self.vx = v0x
         self.vy = v0y
 
-        travel_time = 2 * abs(self.vy / g)
+        self.travel_time = 2 * abs(self.vy / g)
 
-        projectile = turtle.Turtle(shape='circle')
-        projectile.hideturtle()
-        projectile.penup()
-        projectile.setheading(90)
-        projectile.goto(self.x, self.y)
-        projectile.showturtle()
-        projectile.pendown()
-        projectile.stamp()
 
-        times = np.arange(1, travel_time, step)
 
-        for t in times:
+        self.times = np.arange(1, self.travel_time, step)
+
+        for t in self.times:
             self.x_vals.append(self.x)
             self.y_vals.append(self.y)
             self.x = x0 + self.vx * t
             self.y = y0 + self.vy * t - g / 2 * t ** 2
 
-            projectile.goto(self.x, self.y)
 
-        print(times)
-        print(self.x_vals)
-        print(self.y_vals)
 
-        range = self.x_vals[-1] - self.x_vals[0]
+        #print(self.times)
+        #print(self.x_vals)
+        #print(self.y_vals)
+
+
+
+
+
+    def run(self):
+        projectile = turtle.Turtle(shape='circle')
+        projectile.hideturtle()
+        projectile.penup()
+        projectile.setheading(90)
+        projectile.goto(self.x_vals[0], self.y_vals[0])
+        projectile.showturtle()
+        projectile.pendown()
+        projectile.stamp()
+
+        for i in range(len(self.x_vals)):
+            projectile.goto(self.x_vals[i], self.y_vals[i])
 
         turtle.exitonclick()
 
-    def run(self):
+    def generate(self, writeToFile=False):
+        range = self.x_vals[-1] - self.x_vals[0]
+
+        maxh = max(self.y_vals)
+
+        return self.stats.getcard([['Range', range],
+                            ['Maximum Height', maxh]])
+
+
+    def full_data(self):
+        pass
 
 
     def full_projectile(self, v0x, v0y, x0=-200, y0=-200, g=9.8, step=.1):
@@ -85,7 +106,7 @@ class Projectile(object):
 
         times = np.arange(1, travel_time, step)
 
-        for t in times:
+        for t in self.times:
             x_vals.append(x)
             y_vals.append(y)
             x = x0 + vx * t
@@ -93,11 +114,11 @@ class Projectile(object):
 
             projectile.goto(x, y)
 
-        print(times)
-        print(x_vals)
-        print(y_vals)
+        #print(times)
+        #print(x_vals)
+        #print(y_vals)
 
-        range = x_vals[-1] - x_vals[0]
+
 
         turtle.exitonclick()
 
@@ -115,7 +136,8 @@ class Projectile(object):
 
         return vx, vy
 
-
+#TEST
 a = Projectile(20,88)
-a.run()
+#a.run()
+print(a.generate())
 #a.full_projectile(20, 88)
